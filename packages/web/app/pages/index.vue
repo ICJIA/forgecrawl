@@ -242,6 +242,20 @@ const userStories = [
     quote: '"I\'m building a RAG pipeline over government datasets. ForgeCrawl gives me structured Markdown with source URLs and timestamps — exactly what my embeddings need."',
     needs: ['Consistent output format', 'Source attribution in frontmatter', 'Self-hosted for IRB compliance'],
   },
+  {
+    icon: 'i-lucide-newspaper',
+    role: 'Journalist',
+    color: 'text-(--color-orange-500)',
+    quote: '"I monitor 30+ agency newsrooms for breaking policy changes. ForgeCrawl lets me pull clean text on demand and diff it against last week\'s version — no more reading raw HTML in dev tools."',
+    needs: ['On-demand scraping of public pages', 'Git-friendly Markdown for diffing', 'No third-party data sharing'],
+  },
+  {
+    icon: 'i-lucide-book-open',
+    role: 'Technical Writer',
+    color: 'text-(--color-orange-400)',
+    quote: '"We migrated 500 pages from a legacy CMS to a docs-as-code workflow. ForgeCrawl scraped every page into Markdown with frontmatter — saved us weeks of manual conversion."',
+    needs: ['Bulk conversion to clean Markdown', 'Preserved headings, tables, and code blocks', 'YAML metadata for CMS import'],
+  },
 ]
 </script>
 
