@@ -1,0 +1,12 @@
+[build]
+  base = "packages/web"
+  command = "npx nuxt generate"
+  publish = ".output/public"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

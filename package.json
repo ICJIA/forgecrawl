@@ -10,7 +10,9 @@
   },
   "scripts": {
     "dev": "pnpm --filter @forgecrawl/app dev",
+    "dev:web": "pnpm --filter @forgecrawl/web dev",
     "build": "pnpm --filter @forgecrawl/app build",
+    "build:web": "pnpm --filter @forgecrawl/web generate",
     "start": "pnpm --filter @forgecrawl/app start",
     "db:generate": "pnpm --filter @forgecrawl/app db:generate",
     "db:migrate": "pnpm --filter @forgecrawl/app db:migrate",

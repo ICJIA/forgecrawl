@@ -100,6 +100,8 @@ pnpm test
 | `pnpm test:auth` | Auth tests (setup, login, API keys) |
 | `pnpm test:security` | Security tests (SSRF, rate limiting, middleware, etc.) |
 | `pnpm test:scrape` | Scraping tests (fetch, cache, CRUD) |
+| `pnpm dev:web` | Start marketing site dev server on port 3200 |
+| `pnpm build:web` | Generate static marketing site for Netlify |
 | `pnpm db:generate` | Generate Drizzle migration files |
 | `pnpm db:migrate` | Run database migrations |
 
@@ -148,7 +150,49 @@ ForgeCrawl requires a traditional server (VPS, Droplet, bare metal) and **cannot
 
 **Recommended hosts:** DigitalOcean Droplet ($6/mo), Hetzner VPS, AWS Lightsail, or any VPS with 1GB+ RAM and Node.js 22+. See the Docker Compose or PM2 quick starts above.
 
-> **Note:** The future marketing site (`packages/web`) *will* deploy to Netlify — it's static content with no server requirements.
+> **Note:** The marketing site (`packages/web`) deploys to Netlify as a static site — see the Marketing Site section below.
+
+## Marketing Site
+
+The marketing site (`packages/web`) is a separate Nuxt 4 static site with SEO, dark/light mode, and the forge aesthetic. It deploys to Netlify and lives at [forgecrawl.com](https://forgecrawl.com).
+
+### Development
+
+```bash
+# Start marketing site dev server
+pnpm dev:web
+# Visit http://localhost:3200
+```
+
+### Deploy to Netlify
+
+The site generates as fully static HTML — no server required.
+
+```bash
+# Generate static site locally
+pnpm build:web
+# Output: packages/web/.output/public/
+```
+
+**Netlify setup:**
+
+1. Connect the GitHub repo to Netlify
+2. Set **Base directory** to `packages/web`
+3. Set **Build command** to `npx nuxt generate`
+4. Set **Publish directory** to `.output/public`
+5. Set **Node.js version** to 22 (under Environment variables: `NODE_VERSION=22`)
+
+Or use the included `packages/web/netlify.toml` which configures all of this automatically.
+
+### Features
+
+- Nuxt 4 + Nuxt UI 4 (same stack as the app)
+- Dark/light mode toggle (defaults to dark)
+- Full SEO: Open Graph, Twitter Card, canonical URL, structured meta
+- OG image (`og-image.png`) — the forge-themed banner
+- Responsive design with glassmorphism cards
+- Sections: Hero, Features, How It Works, API docs, Security, Get Started, Use Cases
+- Static generation — zero server-side runtime
 
 ## Project Structure
 
@@ -161,6 +205,16 @@ forgecrawl/
 ├── .env                        # Secrets only (gitignored)
 ├── .env.example                # Secret key templates
 ├── packages/
+│   ├── web/                    # Marketing site (static, deploys to Netlify)
+│   │   ├── nuxt.config.ts
+│   │   ├── netlify.toml
+│   │   ├── app/
+│   │   │   ├── pages/index.vue # Landing page
+│   │   │   ├── app.config.ts   # Nuxt UI theme (forge colors)
+│   │   │   └── assets/css/
+│   │   └── public/
+│   │       ├── og-image.png    # SEO/social sharing image
+│   │       └── favicon.svg
 │   └── app/                    # Nuxt 4 application
 │       ├── nuxt.config.ts
 │       ├── Dockerfile

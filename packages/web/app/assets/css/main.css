@@ -1,0 +1,25 @@
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --color-forge-50: #fff7ed;
+  --color-forge-100: #ffedd5;
+  --color-forge-200: #fed7aa;
+  --color-forge-300: #fdba74;
+  --color-forge-400: #fb923c;
+  --color-forge-500: #f97316;
+  --color-forge-600: #ea580c;
+  --color-forge-700: #c2410c;
+  --color-forge-800: #9a3412;
+  --color-forge-900: #7c2d12;
+  --color-forge-950: #431407;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-forge-500) 30%, transparent);
+  color: var(--color-forge-100);
+}
+
+html {
+  scroll-behavior: smooth;
+}
