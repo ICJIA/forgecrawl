@@ -66,6 +66,39 @@ const endpoints = [
 
 const techStack = ['Nuxt 4', 'Vue 3', 'SQLite', 'Drizzle ORM', 'bcrypt', 'jose JWT', 'Readability', 'Turndown', 'Docker', 'PM2']
 
+const markdownBenefits = [
+  {
+    icon: 'i-lucide-ruler',
+    title: '~80% fewer tokens',
+    description: 'A typical webpage is 50-200KB of HTML. After stripping nav, ads, scripts, and boilerplate, the Markdown is 2-10KB. That\'s 80-95% fewer tokens consumed by your LLM — which means lower cost and more room for actual context.',
+  },
+  {
+    icon: 'i-lucide-focus',
+    title: 'Signal, not noise',
+    description: 'Raw HTML is full of <div>, <span>, class names, inline styles, tracking pixels, and aria attributes. None of that is content. Markdown strips it down to headings, paragraphs, lists, links, and code — exactly what the LLM needs to reason about.',
+  },
+  {
+    icon: 'i-lucide-brain',
+    title: 'Better LLM comprehension',
+    description: 'LLMs are trained heavily on Markdown (GitHub, docs, README files). They parse Markdown structure natively — headings map to topics, lists map to enumeration, code blocks map to examples. HTML structure is ambiguous and model-dependent.',
+  },
+  {
+    icon: 'i-lucide-tags',
+    title: 'Structured metadata',
+    description: 'ForgeCrawl adds YAML frontmatter with the source URL, title, description, scrape timestamp, and word count. This metadata is critical for RAG pipelines — you know where every chunk came from and when it was captured.',
+  },
+  {
+    icon: 'i-lucide-repeat',
+    title: 'Consistent format',
+    description: 'Every website has different HTML structure. ForgeCrawl normalizes all of them into the same clean Markdown format — headings, paragraphs, lists, tables, code blocks. Your downstream pipeline handles one format, not thousands.',
+  },
+  {
+    icon: 'i-lucide-git-compare',
+    title: 'Diffable and versionable',
+    description: 'Markdown diffs cleanly in git. HTML doesn\'t. If you\'re tracking content changes over time (regulatory pages, docs, policies), Markdown lets you see exactly what changed in a human-readable diff.',
+  },
+]
+
 const userStories = [
   {
     icon: 'i-lucide-briefcase',
@@ -113,6 +146,7 @@ const userStories = [
         <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-(--color-neutral-500)">
           <a href="#features" class="hover:text-(--color-orange-500) transition-colors">Features</a>
           <a href="#how-it-works" class="hover:text-(--color-orange-500) transition-colors">How It Works</a>
+          <a href="#why-markdown" class="hover:text-(--color-orange-500) transition-colors">Why Markdown</a>
           <a href="#api" class="hover:text-(--color-orange-500) transition-colors">API</a>
           <a href="#security" class="hover:text-(--color-orange-500) transition-colors">Security</a>
           <a href="#why" class="hover:text-(--color-orange-500) transition-colors">Why</a>
@@ -232,6 +266,96 @@ const userStories = [
               <h3 class="text-xl font-bold mb-3">{{ item.title }}</h3>
               <p class="text-(--color-neutral-500) leading-relaxed">{{ item.description }}</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="h-px w-full" style="background: linear-gradient(90deg, transparent, var(--color-orange-500), transparent); opacity: 0.4;" />
+
+      <!-- Why Markdown? -->
+      <section id="why-markdown" class="mx-auto max-w-6xl px-6 py-24">
+        <div class="text-center mb-16">
+          <p class="text-sm font-semibold tracking-widest uppercase text-(--color-orange-500) mb-3">Why Markdown?</p>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">HTML is for browsers. Markdown is for LLMs.</h2>
+          <p class="mt-4 text-(--color-neutral-500) max-w-2xl mx-auto">You could paste raw HTML into an LLM. But you'd be wasting tokens on noise, confusing the model with layout markup, and getting worse results. Here's why Markdown matters.</p>
+        </div>
+
+        <!-- Before/After comparison -->
+        <div class="grid lg:grid-cols-2 gap-6 mb-12 max-w-5xl mx-auto">
+          <div class="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20 p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <UIcon name="i-lucide-x-circle" class="text-red-500" />
+              <span class="font-bold text-sm uppercase tracking-wider text-red-600 dark:text-red-400">Raw HTML (~42KB)</span>
+            </div>
+            <div class="rounded-xl bg-white/80 dark:bg-(--color-neutral-950) border border-(--color-neutral-200) dark:border-(--color-neutral-800) p-4 font-mono text-xs leading-relaxed overflow-x-auto text-(--color-neutral-500)">
+              <pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en" class="dark-mode"&gt;
+&lt;head&gt;
+  &lt;script&gt;window.__NEXT_DATA__={...}&lt;/script&gt;
+  &lt;link rel="stylesheet" href="/css/main.a8f2.css"&gt;
+  &lt;!-- 47 more link/script tags --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;nav class="flex items-center px-4..."&gt;
+    &lt;!-- 200 lines of navigation --&gt;
+  &lt;/nav&gt;
+  &lt;div id="content" class="prose max-w-none"&gt;
+    &lt;h1&gt;Getting Started&lt;/h1&gt;
+    &lt;p&gt;The actual content is buried here...&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;footer&gt;...&lt;/footer&gt;
+  &lt;script src="/js/bundle.f3e1.js"&gt;&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;</pre>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20 p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <UIcon name="i-lucide-check-circle" class="text-emerald-500" />
+              <span class="font-bold text-sm uppercase tracking-wider text-emerald-600 dark:text-emerald-400">ForgeCrawl Markdown (~2KB)</span>
+            </div>
+            <div class="rounded-xl bg-white/80 dark:bg-(--color-neutral-950) border border-(--color-neutral-200) dark:border-(--color-neutral-800) p-4 font-mono text-xs leading-relaxed overflow-x-auto text-(--color-neutral-500)">
+              <pre>---
+title: Getting Started
+url: https://example.com/docs/start
+description: Quick start guide
+scraped_at: 2026-03-05T10:30:00Z
+scraper: ForgeCrawl/1.0
+word_count: 847
+---
+
+# Getting Started
+
+The actual content starts immediately.
+
+## Installation
+
+Run the following command:
+
+```bash
+npm install example-sdk
+```
+
+## Configuration
+
+| Option  | Default | Description      |
+|---------|---------|------------------|
+| timeout | 30s     | Request timeout  |
+| retries | 3       | Max retry count  |</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Benefits grid -->
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div
+            v-for="benefit in markdownBenefits"
+            :key="benefit.title"
+            class="rounded-2xl border border-(--color-neutral-200) dark:border-(--color-neutral-800) bg-white/70 dark:bg-(--color-neutral-900)/70 backdrop-blur-sm p-7 transition-all duration-300 hover:border-(--color-orange-400) dark:hover:border-(--color-orange-700)"
+          >
+            <UIcon :name="benefit.icon" class="text-2xl text-(--color-orange-500) mb-3" />
+            <h3 class="font-bold mb-2">{{ benefit.title }}</h3>
+            <p class="text-sm text-(--color-neutral-500) leading-relaxed">{{ benefit.description }}</p>
           </div>
         </div>
       </section>

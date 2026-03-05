@@ -35,6 +35,22 @@ LLMs work best with clean, structured text — not raw HTML full of navigation, 
 - **Authenticated** — built-in user auth means you can deploy it on a public server without worrying about unauthorized access.
 - **Simple** — one Docker command or PM2 start. No Redis, no Postgres, no message queue. SQLite handles everything.
 
+### Why Markdown instead of raw HTML?
+
+You could paste a webpage's HTML directly into an LLM. But you'd be wasting tokens on noise and getting worse results. Here's what Markdown gives you that raw HTML doesn't:
+
+| | Raw HTML | ForgeCrawl Markdown |
+|---|---|---|
+| **Size** | 50-200KB per page (scripts, styles, nav, ads, tracking) | 2-10KB — content only (**80-95% fewer tokens**) |
+| **Signal-to-noise** | `<div class="flex items-center px-4">` is layout, not content | Headings, paragraphs, lists, code blocks — pure content |
+| **LLM comprehension** | HTML structure is ambiguous — models must infer what's content vs. chrome | Markdown is native to LLM training data (GitHub, docs, READMEs) — models parse it natively |
+| **Metadata** | Scattered across `<meta>` tags, `<head>`, JSON-LD, microdata | Clean YAML frontmatter: title, URL, description, timestamp, word count |
+| **Consistency** | Every site has different HTML structure | Every page outputs the same Markdown format — one parser for your pipeline |
+| **Diffability** | HTML diffs are unreadable noise | Markdown diffs cleanly in git — you can track content changes over time |
+| **Cost** | A 100KB HTML page uses ~25K tokens at $3/M = **$0.075 per page** | The same page as 5KB Markdown uses ~1.2K tokens = **$0.004 per page** (18x cheaper) |
+
+**Bottom line:** Feeding raw HTML to an LLM is like feeding a book scanner the entire newspaper — ads, classifieds, and all — when you only need one article. ForgeCrawl extracts the article, formats it cleanly, and tags it with metadata so your pipeline knows exactly what it's working with.
+
 ## Current Status: Phase 1 Complete
 
 Phase 1 (Foundation & Auth) is fully implemented and tested. The app is functional for single-URL HTTP scraping with built-in authentication.
@@ -274,7 +290,7 @@ After deploying, confirm the site is fully static:
 - Full SEO: Open Graph, Twitter Card, canonical URL, structured meta
 - OG image (`og-image.png`) — the forge-themed banner
 - Responsive design with glassmorphism cards
-- Sections: Hero, Features, How It Works, API docs, Security, Get Started, Use Cases, Why Do I Need This?
+- Sections: Hero, Features, How It Works, Why Markdown, API docs, Security, Get Started, Use Cases, Why Do I Need This?
 - Static generation — zero server-side runtime
 
 ## Project Structure
