@@ -91,9 +91,27 @@ Adjust `puppeteer.concurrency` in `forgecrawl.config.ts` to match your server's 
 | Content Extraction | Mozilla Readability |
 | HTML to Markdown | Turndown + GFM plugin |
 
-## Quick Start
+## Deployment
 
-### Docker Compose (recommended)
+ForgeCrawl supports two deployment methods. Both produce the same running application — choose based on your comfort level and infrastructure preferences.
+
+### Docker Compose vs Bare Metal
+
+| | Docker Compose | Bare Metal (PM2) |
+|---|---|---|
+| **Setup effort** | Minimal — one command | Manual — install Node, pnpm, Chromium, PM2 |
+| **Chromium install** | Handled by Dockerfile | You install and maintain it |
+| **Isolation** | Runs in a container, won't conflict with other apps | Runs directly on the host |
+| **Updates** | Rebuild the image (`docker compose build`) | `git pull && pnpm build && pm2 restart` |
+| **Log management** | `docker compose logs -f` | PM2 logs or custom log files |
+| **SSL/Nginx** | Add via `docker-compose.prod.yml` overlay | Configure Nginx + Certbot manually |
+| **Resource overhead** | Slightly higher (container layer) | Slightly lower (no container overhead) |
+| **Debugging** | Exec into container (`docker exec -it ...`) | Direct access to process and filesystem |
+| **Best for** | Quick deploys, CI/CD, reproducible environments | Full server control, custom setups, existing PM2 workflows |
+
+**Recommendation:** Use Docker Compose unless you have a reason not to. It handles Chromium installation, process management, and data persistence out of the box. Bare metal is a good choice if you're already running PM2 on your server or prefer direct control.
+
+### Quick Start — Docker Compose
 
 ```bash
 git clone https://github.com/cschweda/forgecrawl
@@ -103,7 +121,7 @@ docker compose up -d
 # Register admin account on first run
 ```
 
-### Bare Metal
+### Quick Start — Bare Metal
 
 ```bash
 git clone https://github.com/cschweda/forgecrawl
@@ -116,8 +134,14 @@ sudo apt-get install -y chromium-browser fonts-liberation fonts-noto-cjk
 cp .env.example .env
 cd packages/app
 pnpm build
+
+# Return to project root and start with PM2
+cd ../..
 pm2 start ecosystem.config.cjs
+pm2 save && pm2 startup    # Auto-start on reboot
 ```
+
+See [`ecosystem.config.cjs`](ecosystem.config.cjs) for detailed PM2 configuration and tuning options.
 
 ## Project Structure
 
