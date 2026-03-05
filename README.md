@@ -27,7 +27,7 @@ ForgeCrawl is a different tool for a different audience. It's built for **solo d
 | **User management** | External / Supabase | Built-in with first-run setup |
 | **RAG chunking** | Not included | Built-in token-aware chunking |
 | **License** | AGPL-3.0 | MIT |
-| **Monthly cost** | Free (self-host) or $16+/mo cloud | ~$24/mo VPS |
+| **Monthly cost** | Free (self-host) or $16+/mo cloud | From $6/mo VPS (see [requirements](#vps-requirements)) |
 
 ### What ForgeCrawl Adds
 
