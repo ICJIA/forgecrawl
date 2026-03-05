@@ -69,6 +69,28 @@ ForgeCrawl is not a Firecrawl replacement. It intentionally skips features that 
 | Content Extraction | Mozilla Readability |
 | HTML to Markdown | Turndown + GFM plugin |
 
+## VPS Requirements
+
+ForgeCrawl runs comfortably on modest hardware. The main constraint is Puppeteer/Chromium, which needs ~200-400MB per browser page for JavaScript rendering.
+
+| | Minimum | Recommended |
+|---|---------|-------------|
+| **CPU** | 1 vCPU | 2 vCPU |
+| **RAM** | 2 GB | 4 GB |
+| **Storage** | 25 GB SSD | 50 GB SSD |
+| **OS** | Ubuntu 22.04+ | Ubuntu 24.04 LTS |
+
+**Can you go cheaper than $24/mo?** Yes. If you mostly scrape static pages (HTTP-only, no Puppeteer), a **$6/mo droplet** (1 vCPU / 1 GB) can work — but you'll need to limit Puppeteer concurrency to 1 page and expect occasional memory pressure on JS-heavy sites. A **$12/mo droplet** (1 vCPU / 2 GB) is the practical minimum for light Puppeteer use.
+
+| DigitalOcean Plan | Specs | ForgeCrawl Use Case |
+|---|---|---|
+| **$6/mo** | 1 vCPU / 1 GB / 25 GB | HTTP-only scraping, no JS rendering |
+| **$12/mo** | 1 vCPU / 2 GB / 50 GB | Light use, Puppeteer concurrency = 1 |
+| **$24/mo** | 2 vCPU / 4 GB / 80 GB | General use, 2-3 concurrent Puppeteer pages |
+| **$48/mo** | 4 vCPU / 8 GB / 160 GB | Heavy crawling, higher concurrency |
+
+Adjust `puppeteer.concurrency` in `forgecrawl.config.ts` to match your server's available RAM. Each concurrent Puppeteer page adds ~200-400MB of memory overhead.
+
 ## Quick Start
 
 ### Docker Compose (recommended)
