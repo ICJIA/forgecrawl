@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+.output/
+.nuxt/
+dist/
+
+# Data (SQLite DB + scrape files)
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Auto-generated auth secret
+.env.generated
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker
+docker-compose.override.yml
+
+# PM2
+.pm2/
+
+# Backups
+backups/
+
+# Test coverage
+coverage/
+.nyc_output/
