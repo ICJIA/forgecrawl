@@ -444,7 +444,7 @@ console.<span class="text-sky-600 dark:text-sky-400">log</span>(<span class="tex
               class="rounded-xl border border-(--color-neutral-200) dark:border-(--color-neutral-800) bg-(--color-neutral-50) dark:bg-(--color-neutral-950) px-4 py-3 flex items-center gap-3 font-mono text-sm"
             >
               <UBadge :color="ep.color" variant="subtle" size="xs" :label="ep.method" class="font-bold" />
-              <code class="text-(--color-neutral-500)">{{ ep.path }}</code>
+              <code class="text-(--color-neutral-500) truncate"><span class="text-(--color-orange-500)">{{ apiBase }}</span>{{ ep.path }}</code>
               <span class="ml-auto text-xs" :class="ep.auth ? 'text-(--color-orange-500)' : 'text-(--color-neutral-400)'">
                 {{ ep.auth ? 'Bearer' : 'public' }}
               </span>
