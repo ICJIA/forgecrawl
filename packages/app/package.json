@@ -18,7 +18,7 @@
     "test:scrape": "vitest run tests/phase1/09-scrape"
   },
   "dependencies": {
-    "@mozilla/readability": "^0.5.0",
+    "@mozilla/readability": "^0.6.0",
     "@nuxt/ui": "^4.5.1",
     "@tailwindcss/vite": "^4.2.1",
     "bcrypt": "^5.1.1",
