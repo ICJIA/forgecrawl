@@ -83,7 +83,25 @@ node -e "console.log('NUXT_AUTH_SECRET=' + require('crypto').randomBytes(32).toS
 pnpm dev
 # Visit http://localhost:5150
 # Register admin account on first visit
+
+# Run tests (builds app, starts test server, runs 81 tests)
+pnpm test
 ```
+
+### Available pnpm scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Start Nuxt dev server on port 5150 |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm test` | Run all 81 tests |
+| `pnpm test:health` | Health check tests only |
+| `pnpm test:auth` | Auth tests (setup, login, API keys) |
+| `pnpm test:security` | Security tests (SSRF, rate limiting, middleware, etc.) |
+| `pnpm test:scrape` | Scraping tests (fetch, cache, CRUD) |
+| `pnpm db:generate` | Generate Drizzle migration files |
+| `pnpm db:migrate` | Run database migrations |
 
 ## Quick Start — Docker Compose
 
@@ -331,6 +349,48 @@ Scraping user-supplied URLs is a high-risk operation. ForgeCrawl blocks SSRF at 
 - **No CSRF token** — SameSite=Lax cookies block cross-origin POST, which covers all mutation endpoints. Same-site subdomain attacks are not protected, but acceptable for single-server self-hosted deployment.
 - **In-memory rate limiter** — resets on server restart. Acceptable for single-user deployment; persistent rate limiting via SQLite planned for a future phase.
 - **Single user only** — no multi-user management until Phase 4.
+
+## Testing
+
+ForgeCrawl includes a comprehensive test suite covering authentication, security, and scraping functionality. Tests run against a real built server (not mocks) for maximum confidence.
+
+### Running tests
+
+```bash
+# Run all tests
+pnpm test
+
+# Run individual suites
+pnpm test:health      # Health check endpoint
+pnpm test:auth        # Auth: setup, login, API keys
+pnpm test:security    # Security: middleware, SSRF, rate limiting, error sanitization, data isolation
+pnpm test:scrape      # Scraping: fetch, cache, CRUD
+```
+
+### Test suites (81 tests)
+
+| Suite | File | Tests | What it covers |
+|-------|------|-------|----------------|
+| Health | `01-health` | 6 | Status, version, database, setup state, no sensitive data leaks |
+| Auth Setup | `02-auth-setup` | 6 | Validation, admin creation, permanent setup lockout |
+| Auth Login | `03-auth-login` | 7 | Credential validation, cookie flags, no user enumeration, no password hash exposure |
+| API Keys | `04-auth-api-keys` | 8 | Key creation (`fc_` prefix), listing (no hash exposure), Bearer token auth, revocation |
+| Auth Middleware | `05-security-auth-middleware` | 10 | Public vs protected routes, session + Bearer auth, tampered JWT rejection |
+| SSRF | `06-security-ssrf` | 18 | Private IPs, localhost, cloud metadata, protocol blocklist, DNS resolution |
+| Rate Limiting | `07-security-rate-limit` | 4 | Login attempt throttling, case-insensitive email matching |
+| Error Sanitization | `08-security-error-sanitization` | 4 | No server path leaks, generic error messages, no user enumeration |
+| Scraping | `09-scrape` | 10 | URL validation, Markdown output, frontmatter, caching, CRUD operations |
+| Data Isolation | `10-security-data-isolation` | 6 | Cross-user access blocked, 404 (not 403) for missing resources |
+
+### How tests work
+
+Tests use a custom global setup that:
+1. Builds the Nuxt app for production
+2. Starts the server as a child process on port 5199 with a clean test database
+3. Runs all tests using `ofetch` against the real HTTP server
+4. Tears down the server and cleans up test data
+
+No mocks, no test doubles — every test hits the real API through HTTP.
 
 ## Phase 2: What's Next
 

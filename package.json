@@ -13,7 +13,12 @@
     "build": "pnpm --filter @forgecrawl/app build",
     "start": "pnpm --filter @forgecrawl/app start",
     "db:generate": "pnpm --filter @forgecrawl/app db:generate",
-    "db:migrate": "pnpm --filter @forgecrawl/app db:migrate"
+    "db:migrate": "pnpm --filter @forgecrawl/app db:migrate",
+    "test": "pnpm --filter @forgecrawl/app test",
+    "test:health": "pnpm --filter @forgecrawl/app test:health",
+    "test:auth": "pnpm --filter @forgecrawl/app test:auth",
+    "test:security": "pnpm --filter @forgecrawl/app test:security",
+    "test:scrape": "pnpm --filter @forgecrawl/app test:scrape"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -22,5 +27,6 @@
       "better-sqlite3",
       "esbuild"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"
 }

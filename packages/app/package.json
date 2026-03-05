@@ -9,7 +9,13 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "vitest",
+    "test:health": "vitest run tests/phase1/01-health",
+    "test:auth": "vitest run tests/phase1/02-auth-setup tests/phase1/03-auth-login tests/phase1/04-auth-api-keys",
+    "test:security": "vitest run tests/phase1/05-security-auth-middleware tests/phase1/06-security-ssrf tests/phase1/07-security-rate-limit tests/phase1/08-security-error-sanitization tests/phase1/10-security-data-isolation",
+    "test:scrape": "vitest run tests/phase1/09-scrape"
   },
   "dependencies": {
     "@mozilla/readability": "^0.5.0",
@@ -20,7 +26,6 @@
     "cheerio": "^1.0.0",
     "drizzle-orm": "^0.36.0",
     "jose": "^5.9.0",
-    "jsdom": "^25.0.0",
     "nuxt": "^4.3.1",
     "tailwindcss": "^4.2.1",
     "turndown": "^7.2.0",
@@ -29,12 +34,16 @@
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@nuxt/test-utils": "^4.0.0",
     "@types/bcrypt": "^5.0.0",
     "@types/better-sqlite3": "^7.6.0",
     "@types/jsdom": "^21.1.0",
     "@types/turndown": "^5.0.0",
+    "@vue/test-utils": "^2.4.6",
     "drizzle-kit": "^0.30.0",
+    "jsdom": "^28.1.0",
     "kill-port": "^2.0.1",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
   }
 }
