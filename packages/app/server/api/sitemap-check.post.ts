@@ -25,9 +25,30 @@ export default defineEventHandler(async (event) => {
   try {
     const response = await $fetch.raw(sitemapUrl, {
       timeout: 5000,
-      redirect: 'follow',
+      redirect: 'manual',
       responseType: 'text',
     })
+
+    // If redirected, re-validate the target URL for SSRF
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location')
+      if (!location) return { found: false, sitemapUrl, urlCount: 0 }
+      const resolvedUrl = new URL(location, sitemapUrl).href
+      await validateUrlWithDns(resolvedUrl)
+      // Re-fetch from validated redirect target
+      const redirected = await $fetch.raw(resolvedUrl, {
+        timeout: 5000,
+        redirect: 'manual',
+        responseType: 'text',
+      })
+      const ct = redirected.headers.get('content-type') || ''
+      const txt = (redirected._data as string) || ''
+      if (!ct.includes('xml') && !txt.includes('<urlset') && !txt.includes('<sitemapindex')) {
+        return { found: false, sitemapUrl, urlCount: 0 }
+      }
+      const count = (txt.match(/<loc>/gi) || []).length
+      return { found: true, sitemapUrl: resolvedUrl, urlCount: count }
+    }
 
     const contentType = response.headers.get('content-type') || ''
     const text = (response._data as string) || ''

@@ -69,7 +69,11 @@ export async function validateUrlWithDns(input: string): Promise<string> {
     }
   } catch (err: any) {
     if (err.statusCode) throw err // Re-throw our own errors
-    // DNS resolution failure — allow through (fetcher will fail if unreachable)
+    // DNS resolution failure — block to prevent SSRF bypass via DNS outage
+    throw createError({
+      statusCode: 400,
+      message: 'Could not resolve hostname',
+    })
   }
 
   return href

@@ -6,6 +6,35 @@
 
 Self-hosted, authenticated web scraper that converts website content into clean Markdown optimized for LLM consumption.
 
+## Why ForgeCrawl?
+
+LLMs work best with clean, structured text — not raw HTML full of navigation, ads, and scripts. ForgeCrawl gives you a private, self-hosted tool to scrape any public webpage and get back clean Markdown with metadata, ready to feed into your AI workflows.
+
+### Who is this for?
+
+- **Researchers** building knowledge bases from government reports, academic pages, or institutional websites that don't have APIs
+- **Developers** creating RAG (retrieval-augmented generation) pipelines who need clean, structured content from the web
+- **Content teams** archiving web content as Markdown for documentation, migration, or LLM fine-tuning datasets
+- **Policy analysts** scraping legislative sites, agency reports, and public records into a format AI tools can actually use
+- **Anyone** who's tired of copy-pasting web content into ChatGPT and losing all the formatting
+
+### Real-world examples
+
+| Use case | What you'd scrape | What you get |
+|---|---|---|
+| **Build a research corpus** | 200 pages from a state agency website | Clean Markdown files with metadata (dates, authors, canonical URLs) ready for a RAG pipeline |
+| **Feed context to an LLM** | A long technical doc or policy page | Structured Markdown you can paste directly into Claude, GPT, or any LLM prompt |
+| **Archive a blog** | Individual blog posts from a company site | Markdown with YAML frontmatter preserving publication dates, authors, and descriptions |
+| **Create training data** | Product pages, FAQ sections, support docs | Consistently formatted Markdown suitable for fine-tuning or embedding generation |
+| **Monitor content changes** | A regulatory page that updates quarterly | Re-scrape with cache bypass to get the latest version in a diffable format |
+
+### Why not just use Firecrawl / Jina / etc.?
+
+- **Self-hosted** — your data never leaves your server. No API keys, no usage limits, no third-party dependencies.
+- **Free** — no per-page pricing. Scrape as much as you want on your own infrastructure.
+- **Authenticated** — built-in user auth means you can deploy it on a public server without worrying about unauthorized access.
+- **Simple** — one Docker command or PM2 start. No Redis, no Postgres, no message queue. SQLite handles everything.
+
 ## Current Status: Phase 1 Complete
 
 Phase 1 (Foundation & Auth) is fully implemented and tested. The app is functional for single-URL HTTP scraping with built-in authentication.
@@ -181,24 +210,52 @@ NUXT_ALERT_WEBHOOK=       # Discord/Slack webhook (optional)
 
 ## Security
 
-### Implemented (Phase 1)
+ForgeCrawl is designed to be deployed on a server you control, scraping arbitrary URLs from the internet. Security is not an afterthought — it's built into every layer.
 
-- bcrypt password hashing (12 salt rounds)
-- JWT in HTTP-only, Secure, SameSite=Lax cookie (never localStorage)
-- Constant-time password verification (timing attack prevention)
-- SSRF protection: blocks private IPs, localhost, cloud metadata, non-HTTP protocols, with DNS resolution check
-- Login rate limiting (5 failures per email per 15 min window)
-- Setup endpoint permanently locked after first admin creation
-- All API routes require authentication (except health, setup, login, logout)
-- Expired session detection with stale cookie cleanup
-- Drizzle ORM parameterized queries (SQL injection prevention)
-- Vue template auto-escaping (XSS prevention)
+### Authentication & Session Management
+
+| Protection | Implementation |
+|---|---|
+| **Password hashing** | bcrypt with 12 salt rounds — resistant to brute-force and rainbow table attacks |
+| **JWT sessions** | HS256-signed tokens in HTTP-only, Secure, SameSite=Lax cookies — never stored in localStorage or exposed to JavaScript |
+| **Constant-time verification** | Password comparison uses `bcrypt.compare` which is constant-time; login also hashes a dummy value on user-not-found to prevent timing-based user enumeration |
+| **Session expiry** | Configurable JWT lifetime (default 15 days) with automatic expired-token detection and stale cookie cleanup |
+| **Auth secret validation** | `NUXT_AUTH_SECRET` must be at least 32 characters; the app throws on first auth action if missing |
+| **Setup lockout** | First-run admin registration (`/setup`) is permanently locked after the first admin account is created — stored in the database, not bypassable |
+
+### Server-Side Request Forgery (SSRF) Protection
+
+Scraping user-supplied URLs is a high-risk operation. ForgeCrawl blocks SSRF at multiple levels:
+
+| Layer | What it blocks |
+|---|---|
+| **Protocol allowlist** | Only `http:` and `https:` — blocks `file://`, `ftp://`, `gopher://`, etc. |
+| **Hostname blocklist** | `localhost`, `0.0.0.0`, `127.0.0.1`, `[::1]`, `metadata.google.internal` |
+| **IP range blocklist** | Private ranges (10.x, 172.16-31.x, 192.168.x), loopback, link-local (169.254.x), cloud metadata (169.254.169.254), shared address space (100.64-127.x), IPv6 private/link-local |
+| **DNS resolution check** | After URL parsing, resolves the hostname and checks the resolved IP against all blocklists — prevents DNS rebinding attacks where a domain points to a private IP |
+| **DNS failure = block** | If DNS resolution fails, the request is blocked rather than allowed through — prevents SSRF bypass during DNS outages |
+| **Redirect re-validation** | HTTP redirects are handled manually; each redirect target is re-validated through the full SSRF pipeline before following — prevents open-redirect SSRF bypass |
+
+### Input Validation & Injection Prevention
+
+| Protection | Implementation |
+|---|---|
+| **SQL injection** | Drizzle ORM parameterized queries throughout — no raw SQL, no string concatenation |
+| **XSS** | Vue template auto-escaping on all rendered content; no `v-html` usage |
+| **Error message sanitization** | Internal error messages are filtered before reaching the client — only known-safe error types are passed through |
+| **Rate limiting** | Login endpoint: 5 failed attempts per email per 15-minute window with automatic lockout |
+| **Health endpoint** | Exposes only version, database status, and setup state — no memory usage, uptime, or server internals |
+
+### Data Isolation
+
+- All scrape data queries are scoped to the authenticated user's ID
+- Delete operations verify ownership before execution
+- No cross-user data access is possible through the API
 
 ### Known Limitations
 
-- **No CSRF token** — SameSite=Lax cookies block cross-origin POST, which covers all mutations. Same-site subdomain attacks are not protected, but acceptable for single-server self-hosted deployment.
-- **In-memory rate limiter** — resets on server restart. Acceptable for Phase 1; persistent rate limiting could use SQLite in a future phase.
-- **No auth secret startup validation** — if `NUXT_AUTH_SECRET` is missing, the app boots but fails on first auth action. Will add startup check.
+- **No CSRF token** — SameSite=Lax cookies block cross-origin POST, which covers all mutation endpoints. Same-site subdomain attacks are not protected, but acceptable for single-server self-hosted deployment.
+- **In-memory rate limiter** — resets on server restart. Acceptable for single-user deployment; persistent rate limiting via SQLite planned for a future phase.
 - **Single user only** — no multi-user management until Phase 4.
 - **No API key auth** — browser sessions only until Phase 4.
 

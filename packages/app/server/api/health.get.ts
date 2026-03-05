@@ -14,11 +14,6 @@ export default defineEventHandler(() => {
   return {
     status: 'ok',
     version: config.app.version,
-    uptime: Math.floor(process.uptime()),
-    memory: {
-      rss: Math.round(process.memoryUsage().rss / 1024 / 1024),
-      heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-    },
     database: dbStatus,
     setup_complete: setupComplete,
   }

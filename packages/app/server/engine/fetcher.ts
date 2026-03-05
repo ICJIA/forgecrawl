@@ -1,3 +1,5 @@
+import { validateUrlWithDns } from '../utils/url'
+
 export async function fetchPage(url: string): Promise<string> {
   const config = useRuntimeConfig()
 
@@ -8,9 +10,19 @@ export async function fetchPage(url: string): Promise<string> {
       'Accept-Language': 'en-US,en;q=0.9',
     },
     timeout: config.scrapeTimeout,
-    redirect: 'follow',
+    redirect: 'manual',
     responseType: 'text',
   })
+
+  // Handle redirects with SSRF re-validation
+  const status = response.status
+  if (status >= 300 && status < 400) {
+    const location = response.headers.get('location')
+    if (!location) throw new Error('Redirect with no Location header')
+    const resolvedUrl = new URL(location, url).href
+    await validateUrlWithDns(resolvedUrl)
+    return fetchPage(resolvedUrl)
+  }
 
   const contentType = response.headers.get('content-type') || ''
   if (!contentType.includes('text/html') && !contentType.includes('application/xhtml+xml')) {

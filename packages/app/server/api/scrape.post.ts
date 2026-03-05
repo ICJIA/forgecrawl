@@ -80,6 +80,12 @@ export default defineEventHandler(async (event) => {
       completedAt: new Date().toISOString(),
     }).where(eq(scrapeJobs.id, jobId)).run()
 
-    throw createError({ statusCode: 500, message: err.message })
+    // Sanitize error message — only pass through known safe error types
+    const safeMessages = ['Unsupported content type', 'Invalid URL', 'Blocked', 'Could not extract content']
+    const isSafe = safeMessages.some(prefix => err.message?.startsWith(prefix))
+    throw createError({
+      statusCode: 500,
+      message: isSafe ? err.message : 'Scrape failed. Check the URL and try again.',
+    })
   }
 })
