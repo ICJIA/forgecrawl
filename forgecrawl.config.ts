@@ -1,19 +1,45 @@
 /**
- * forgecrawl.config.ts
+ * forgecrawl.config.ts — Single source of truth for all public configuration.
  *
- * Single source of truth for all public project configuration.
- * Secret values (auth secrets, encryption keys, external API credentials)
- * belong in .env — never in this file.
+ * This file controls every non-secret setting in ForgeCrawl. When you deploy,
+ * these are the values baked into the build. You should never need to duplicate
+ * these defaults in .env, nuxt.config.ts, or individual source files.
  *
- * Import this config in nuxt.config.ts:
- *   import { config } from '../../forgecrawl.config'
+ * SECRET VALUES (auth secrets, encryption keys, API credentials) belong in
+ * .env — never in this file. See .env.example for the template.
+ *
+ * USAGE:
+ *   In packages/app/nuxt.config.ts:
+ *     import { config, toRuntimeConfig } from '../../forgecrawl.config'
+ *
+ *   Then set runtimeConfig: toRuntimeConfig()
+ *
+ * STRUCTURE:
+ *   The file is organized into two sections:
+ *     1. COMMON — Settings most users will want to review or change
+ *     2. ADVANCED — Defaults that work for most deployments; change only
+ *        if you understand the implications
  */
 
 export const config = {
-  /** Application metadata */
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  COMMON SETTINGS
+  //  Review these when setting up a new deployment. These are the values
+  //  you're most likely to change based on your server and use case.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Application metadata.
+   * "name" and "version" are displayed in the dashboard header and API responses.
+   */
   app: {
+    /** Displayed in the UI header and API responses */
     name: 'ForgeCrawl',
+
+    /** Shown in the dashboard footer and health endpoint */
     version: '0.1.0',
+
     description:
       'Self-hosted, authenticated web scraper that converts website content into clean Markdown optimized for LLM consumption.',
     author: 'cschweda',
@@ -21,101 +47,251 @@ export const config = {
     license: 'MIT',
   },
 
-  /** Server defaults */
+  /**
+   * Server — where the app listens.
+   * For Docker deployments, leave these as-is (the container maps ports externally).
+   * For bare-metal, change `port` if 3000 conflicts with another service.
+   */
   server: {
+    /** HTTP port. Override at runtime with the PORT env var if needed. */
     port: 3000,
+
+    /**
+     * Bind address. '0.0.0.0' listens on all interfaces (required for Docker).
+     * Set to '127.0.0.1' if you only want localhost access (e.g., behind Nginx).
+     */
     host: '0.0.0.0',
   },
 
-  /** Database */
-  db: {
-    /** 'sqlite' is the default and recommended backend */
-    backend: 'sqlite' as const,
-    /** SQLite WAL mode busy timeout in milliseconds */
-    busyTimeout: 5000,
-  },
-
-  /** Storage — where scrape results are persisted */
+  /**
+   * Storage — where scrape results are saved.
+   *
+   *   'database'   — Everything in SQLite. Simple, easy to back up (one file).
+   *   'filesystem'  — Raw HTML, Markdown, and chunks stored as files on disk.
+   *                   Metadata still in SQLite for querying.
+   *   'both'        — Metadata in SQLite + large content on disk. Best of both
+   *                   worlds for most deployments. (DEFAULT)
+   */
   storage: {
-    /** 'database' | 'filesystem' | 'both' */
     mode: 'both' as 'database' | 'filesystem' | 'both',
-    /** Base directory for SQLite database and filesystem storage */
+
+    /**
+     * Base directory for the SQLite database file and filesystem storage.
+     * Relative paths are resolved from the Nuxt app root (packages/app/).
+     * In Docker, this is mapped to a volume at /app/data.
+     */
     dataDir: './data',
   },
 
-  /** Scraping engine */
-  scrape: {
-    /** Page load timeout in milliseconds */
-    timeout: 30000,
-    /** User-Agent string sent with HTTP requests */
-    userAgent: 'ForgeCrawl/1.0',
-    /** Result cache TTL in seconds (0 to disable) */
-    cacheTtl: 3600,
-  },
-
-  /** Puppeteer (headless Chromium) */
+  /**
+   * Puppeteer — headless Chromium for JavaScript-rendered pages.
+   * This is the biggest factor in RAM usage. Adjust concurrency to match
+   * your server's available memory.
+   *
+   *   1 GB RAM → concurrency: 1 (or disable Puppeteer entirely)
+   *   2 GB RAM → concurrency: 1-2
+   *   4 GB RAM → concurrency: 2-3
+   *   8 GB RAM → concurrency: 4-6
+   *
+   * Each concurrent page adds ~200-400MB of memory overhead.
+   */
   puppeteer: {
-    /** Max concurrent browser pages */
+    /** Max number of browser pages open at the same time */
     concurrency: 3,
+
     /**
-     * Path to Chromium binary — leave empty for auto-detection.
-     * Docker sets this to /usr/bin/chromium-browser.
+     * Absolute path to the Chromium binary.
+     * Leave empty ('') for auto-detection — Puppeteer will find the bundled
+     * or system Chromium automatically. Docker sets this to /usr/bin/chromium-browser.
+     * Only set this if auto-detection fails on your system.
      */
     executablePath: '',
   },
 
-  /** Authentication */
-  auth: {
-    /** bcrypt salt rounds */
-    saltRounds: 12,
-    /** JWT algorithm */
-    algorithm: 'HS256' as const,
-    /** Session cookie name */
-    cookieName: 'forgecrawl_session',
-    /** Session cookie max-age in seconds (7 days) */
-    cookieMaxAge: 7 * 24 * 60 * 60,
+  /**
+   * Scraping engine — controls how pages are fetched and cached.
+   */
+  scrape: {
+    /**
+     * How long to wait for a page to load before giving up (milliseconds).
+     * 30 seconds is generous for most sites. Increase for very slow pages.
+     */
+    timeout: 30000,
+
+    /**
+     * User-Agent header sent with HTTP requests. Some sites block requests
+     * without a recognized User-Agent. Change this if you're getting 403s.
+     */
+    userAgent: 'ForgeCrawl/1.0',
+
+    /**
+     * Result cache TTL in seconds. When the same URL is scraped again within
+     * this window, the cached result is returned instead of re-fetching.
+     * Set to 0 to disable caching entirely.
+     *
+     *   3600  = 1 hour (default)
+     *   86400 = 24 hours
+     *   0     = no caching
+     */
+    cacheTtl: 3600,
   },
 
-  /** Rate limiting */
-  rateLimit: {
-    /** Max failed login attempts per email before lockout */
-    loginMaxAttempts: 5,
-    /** Login lockout window in milliseconds (15 minutes) */
-    loginWindowMs: 15 * 60 * 1000,
-  },
-
-  /** Crawling (Phase 3) */
+  /**
+   * Crawling — multi-page site crawls (Phase 3).
+   * These are defaults; each crawl request can override them.
+   */
   crawl: {
-    /** Default max crawl depth */
+    /** How many links deep to follow from the starting URL (1 = just linked pages) */
     defaultMaxDepth: 2,
-    /** Default max pages per crawl */
+
+    /** Maximum total pages to scrape in a single crawl job */
     defaultMaxPages: 50,
-    /** Delay between requests in milliseconds */
+
+    /**
+     * Delay between requests in milliseconds. Keeps you from hammering
+     * target servers. 1000ms (1 second) is a polite default.
+     */
     politenessDelay: 1000,
-    /** Respect robots.txt by default */
+
+    /** Whether to check and obey robots.txt before crawling. Leave this on. */
     respectRobotsTxt: true,
   },
 
-  /** RAG chunking (Phase 5) */
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  ADVANCED SETTINGS
+  //  The defaults below work well for most deployments. Only change these
+  //  if you understand the security or performance implications.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Database — SQLite configuration.
+   * SQLite is the default and recommended backend. It requires zero setup,
+   * stores everything in a single file, and handles ForgeCrawl's workload
+   * with ease. You almost certainly don't need to change these.
+   */
+  db: {
+    /**
+     * Database backend. 'sqlite' is the only fully supported option.
+     * 'supabase' is an optional upgrade path — see docs/forgecrawl-11-sqlite-auth.md.
+     */
+    backend: 'sqlite' as const,
+
+    /**
+     * WAL mode busy timeout in milliseconds. When one process is writing,
+     * other readers/writers wait up to this long before returning SQLITE_BUSY.
+     * 5000ms is safe for all normal workloads. Don't lower this.
+     */
+    busyTimeout: 5000,
+  },
+
+  /**
+   * Authentication — session and password hashing settings.
+   * These are security-sensitive. Changing them can weaken auth or break
+   * existing sessions. The defaults follow security best practices.
+   */
+  auth: {
+    /**
+     * bcrypt salt rounds. Higher = slower hashing = more resistant to brute force.
+     * 12 is the widely accepted standard. Don't go below 10.
+     * Going higher (e.g., 14) makes login noticeably slower with minimal security gain.
+     */
+    saltRounds: 12,
+
+    /**
+     * JWT signing algorithm. HS256 (HMAC-SHA256) is used with the NUXT_AUTH_SECRET
+     * from .env. Don't change this unless you're migrating to asymmetric keys (RS256).
+     */
+    algorithm: 'HS256' as const,
+
+    /**
+     * Name of the HTTP-only session cookie. Changing this will log out all
+     * existing users since their browsers still send the old cookie name.
+     */
+    cookieName: 'forgecrawl_session',
+
+    /**
+     * Session duration in seconds. Default is 7 days (604800 seconds).
+     * After this, users must log in again. Shorter = more secure but more annoying.
+     */
+    cookieMaxAge: 7 * 24 * 60 * 60, // 7 days
+  },
+
+  /**
+   * Rate limiting — brute-force protection for the login endpoint.
+   * These limits apply per email address, not per IP.
+   */
+  rateLimit: {
+    /**
+     * Max failed login attempts before the account is temporarily locked.
+     * After this many failures, the user gets HTTP 429 until the window resets.
+     */
+    loginMaxAttempts: 5,
+
+    /**
+     * How long the lockout lasts in milliseconds. After this window passes,
+     * the failed attempt counter resets and the user can try again.
+     * Default: 15 minutes (900000ms).
+     */
+    loginWindowMs: 15 * 60 * 1000, // 15 minutes
+  },
+
+  /**
+   * RAG chunking — token-aware content splitting (Phase 5).
+   * These are defaults; each scrape request can override them.
+   */
   chunking: {
-    /** Default max tokens per chunk */
+    /**
+     * Maximum tokens per chunk. Most LLMs work well with 512-token chunks.
+     * Larger chunks preserve more context but use more of the context window.
+     * Smaller chunks are more precise for retrieval but may lose context.
+     */
     defaultMaxTokens: 512,
-    /** Token overlap between adjacent chunks */
+
+    /**
+     * Number of tokens duplicated between adjacent chunks. Overlap prevents
+     * information from being lost at chunk boundaries. 50 tokens is a safe
+     * default. Set to 0 for no overlap.
+     */
     defaultOverlap: 50,
   },
 
-  /** Alert webhook (Phase 5) — URL set via env var NUXT_ALERT_WEBHOOK */
+  /**
+   * Alerts — webhook notifications for errors and events (Phase 5).
+   * The actual webhook URL is a secret and should be set via the
+   * NUXT_ALERT_WEBHOOK environment variable in .env, not here.
+   */
   alerts: {
+    /** Placeholder — the real URL comes from .env at runtime */
     webhookUrl: '',
   },
 } as const
 
-/** Helper to map config values into Nuxt runtimeConfig format */
+// ═══════════════════════════════════════════════════════════════════════════
+//  RUNTIME CONFIG HELPER
+//  Maps the config above into the format Nuxt's runtimeConfig expects.
+//  You shouldn't need to modify this unless you add new config keys.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Generates the runtimeConfig object for nuxt.config.ts.
+ *
+ * Secret values (authSecret, encryptionKey) are left as empty strings here.
+ * Nuxt automatically fills them from .env at startup by matching the NUXT_
+ * prefix (e.g., NUXT_AUTH_SECRET → runtimeConfig.authSecret).
+ *
+ * Usage in packages/app/nuxt.config.ts:
+ *   import { toRuntimeConfig } from '../../forgecrawl.config'
+ *   export default defineNuxtConfig({
+ *     runtimeConfig: toRuntimeConfig(),
+ *   })
+ */
 export function toRuntimeConfig() {
   return {
-    // Private (server-only) — secrets come from .env via NUXT_ prefix
-    authSecret: '', // NUXT_AUTH_SECRET
-    encryptionKey: '', // NUXT_ENCRYPTION_KEY
+    // ── Secrets (populated from .env at runtime) ──────────────────────────
+    authSecret: '',      // ← NUXT_AUTH_SECRET from .env
+    encryptionKey: '',   // ← NUXT_ENCRYPTION_KEY from .env
+
+    // ── Public defaults (from config above) ───────────────────────────────
     storageMode: config.storage.mode,
     dataDir: config.storage.dataDir,
     dbBackend: config.db.backend,
@@ -125,6 +301,8 @@ export function toRuntimeConfig() {
     puppeteerConcurrency: config.puppeteer.concurrency,
     puppeteerExecutablePath: config.puppeteer.executablePath,
     alertWebhook: config.alerts.webhookUrl,
+
+    // ── Client-visible values (safe to expose to the browser) ─────────────
     public: {
       appName: config.app.name,
       appVersion: config.app.version,
