@@ -187,7 +187,7 @@ PORT=3000
 ### 2.5 Quick Start (Docker Compose)
 
 ```bash
-git clone https://github.com/ICJIA/forgecrawl
+git clone https://github.com/cschweda/forgecrawl
 cd forgecrawl
 cp .env.example .env
 # No .env editing needed for basic use. Auth secret auto-generates.
@@ -609,7 +609,7 @@ Add RISK-11: Docker-Specific Risks. Mitigations: non-root user, memory limits, n
 ### Option A: Docker Compose (Recommended)
 
 ```bash
-git clone https://github.com/ICJIA/forgecrawl
+git clone https://github.com/cschweda/forgecrawl
 cd forgecrawl
 cp .env.example .env
 # Edit .env if needed (auth secret auto-generates on first run)
@@ -622,7 +622,7 @@ docker compose up -d
 ### Option B: Bare-Metal (Advanced)
 
 ```bash
-git clone https://github.com/ICJIA/forgecrawl
+git clone https://github.com/cschweda/forgecrawl
 cd forgecrawl
 pnpm install
 

@@ -646,7 +646,7 @@ volumes:
 ### Updated Quick Start (Now truly 2 commands)
 
 ```bash
-git clone https://github.com/ICJIA/forgecrawl
+git clone https://github.com/cschweda/forgecrawl
 cd forgecrawl
 docker compose up -d
 

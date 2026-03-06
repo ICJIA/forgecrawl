@@ -43,7 +43,7 @@ export const config = {
     description:
       'Self-hosted, authenticated web scraper that converts website content into clean Markdown optimized for LLM consumption.',
     author: 'cschweda',
-    repo: 'https://github.com/ICJIA/forgecrawl',
+    repo: 'https://github.com/cschweda/forgecrawl',
     license: 'MIT',
   },
 

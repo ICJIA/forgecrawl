@@ -324,7 +324,7 @@ const roadmap = [
             @click="toggleColorMode"
           />
           <UButton
-            to="https://github.com/ICJIA/forgecrawl"
+            to="https://github.com/cschweda/forgecrawl"
             target="_blank"
             icon="i-lucide-github"
             label="GitHub"
@@ -372,7 +372,7 @@ const roadmap = [
                 class="bg-gradient-to-r from-(--color-orange-500) to-(--color-orange-600) hover:from-(--color-orange-600) hover:to-(--color-orange-700) text-white shadow-lg"
               />
               <UButton
-                to="https://github.com/ICJIA/forgecrawl"
+                to="https://github.com/cschweda/forgecrawl"
                 target="_blank"
                 icon="i-lucide-github"
                 label="View on GitHub"
@@ -386,7 +386,7 @@ const roadmap = [
           <!-- Install command -->
           <div class="mt-14 mx-auto max-w-xl">
             <div class="rounded-xl border border-(--color-neutral-200) dark:border-(--color-neutral-800) bg-(--color-neutral-50) dark:bg-(--color-neutral-950) px-5 py-4 font-mono text-sm text-(--color-neutral-600) dark:text-(--color-neutral-400)">
-              <span class="text-(--color-orange-500)">$</span> git clone https://github.com/ICJIA/forgecrawl && docker compose up -d
+              <span class="text-(--color-orange-500)">$</span> git clone https://github.com/cschweda/forgecrawl && docker compose up -d
             </div>
           </div>
         </div>
@@ -820,7 +820,7 @@ console.<span class="text-sky-600 dark:text-sky-400">log</span>(<span class="tex
               <h3 class="text-lg font-bold">Docker Compose</h3>
             </div>
             <div class="rounded-xl border border-(--color-neutral-200) dark:border-(--color-neutral-800) bg-(--color-neutral-50) dark:bg-(--color-neutral-950) p-5 font-mono text-sm leading-relaxed">
-              <pre class="text-(--color-neutral-600) dark:text-(--color-neutral-400)"><span class="text-(--color-orange-500)">$</span> git clone https://github.com/ICJIA/forgecrawl
+              <pre class="text-(--color-neutral-600) dark:text-(--color-neutral-400)"><span class="text-(--color-orange-500)">$</span> git clone https://github.com/cschweda/forgecrawl
 <span class="text-(--color-orange-500)">$</span> cd forgecrawl
 <span class="text-(--color-orange-500)">$</span> docker compose up -d
 <span class="text-(--color-neutral-400)"># Visit http://localhost:5150</span></pre>
@@ -836,7 +836,7 @@ console.<span class="text-sky-600 dark:text-sky-400">log</span>(<span class="tex
               <h3 class="text-lg font-bold">Bare Metal (PM2)</h3>
             </div>
             <div class="rounded-xl border border-(--color-neutral-200) dark:border-(--color-neutral-800) bg-(--color-neutral-50) dark:bg-(--color-neutral-950) p-5 font-mono text-sm leading-relaxed">
-              <pre class="text-(--color-neutral-600) dark:text-(--color-neutral-400)"><span class="text-(--color-orange-500)">$</span> git clone https://github.com/ICJIA/forgecrawl
+              <pre class="text-(--color-neutral-600) dark:text-(--color-neutral-400)"><span class="text-(--color-orange-500)">$</span> git clone https://github.com/cschweda/forgecrawl
 <span class="text-(--color-orange-500)">$</span> cd forgecrawl && pnpm install
 <span class="text-(--color-orange-500)">$</span> cp .env.example .env
 <span class="text-(--color-orange-500)">$</span> pnpm build && pm2 start ecosystem.config.cjs
@@ -968,7 +968,7 @@ console.<span class="text-sky-600 dark:text-sky-400">log</span>(<span class="tex
         <div class="mt-10 text-center">
           <p class="text-sm text-(--color-neutral-400)">
             Want to follow progress or contribute?
-            <a href="https://github.com/ICJIA/forgecrawl" target="_blank" rel="noopener" class="text-(--color-orange-500) hover:underline">Star the repo on GitHub</a>
+            <a href="https://github.com/cschweda/forgecrawl" target="_blank" rel="noopener" class="text-(--color-orange-500) hover:underline">Star the repo on GitHub</a>
           </p>
         </div>
       </div>
@@ -987,7 +987,7 @@ console.<span class="text-sky-600 dark:text-sky-400">log</span>(<span class="tex
             </span>
           </div>
           <div class="flex items-center gap-6 text-sm text-(--color-neutral-500)">
-            <a href="https://github.com/ICJIA/forgecrawl" target="_blank" rel="noopener" class="hover:text-(--color-orange-500) transition-colors">GitHub</a>
+            <a href="https://github.com/cschweda/forgecrawl" target="_blank" rel="noopener" class="hover:text-(--color-orange-500) transition-colors">GitHub</a>
             <a href="#why-markdown" class="hover:text-(--color-orange-500) transition-colors">Why Markdown</a>
             <a href="#api" class="hover:text-(--color-orange-500) transition-colors">API Reference</a>
             <a href="#roadmap" class="hover:text-(--color-orange-500) transition-colors">Roadmap</a>

@@ -155,7 +155,7 @@ A static Nuxt site explaining what ForgeCrawl is, why it exists, how it differs 
 
 **Quick start code block:**
 ```bash
-git clone https://github.com/ICJIA/forgecrawl
+git clone https://github.com/cschweda/forgecrawl
 cd forgecrawl/packages/app
 pnpm install
 cp .env.example .env
