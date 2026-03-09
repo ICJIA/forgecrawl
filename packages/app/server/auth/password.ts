@@ -1,6 +1,7 @@
 import { hash, compare } from 'bcrypt'
+import { config } from '../../../../forgecrawl.config'
 
-const SALT_ROUNDS = 12
+const SALT_ROUNDS = config.auth.saltRounds
 
 export async function hashPassword(password: string): Promise<string> {
   return hash(password, SALT_ROUNDS)

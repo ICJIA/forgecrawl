@@ -1,7 +1,9 @@
+import { config } from '../../../../forgecrawl.config'
+
 const attempts = new Map<string, { count: number; resetAt: number }>()
 
-const MAX_ATTEMPTS = 5
-const WINDOW_MS = 15 * 60 * 1000 // 15 minutes
+const MAX_ATTEMPTS = config.rateLimit.loginMaxAttempts
+const WINDOW_MS = config.rateLimit.loginWindowMs
 
 export function checkLoginRateLimit(email: string): void {
   const key = email.toLowerCase()

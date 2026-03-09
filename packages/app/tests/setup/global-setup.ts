@@ -32,6 +32,9 @@ export async function setup() {
     env: {
       ...process.env,
       PORT: String(TEST_PORT),
+      HOST: '127.0.0.1',
+      NITRO_HOST: '127.0.0.1',
+      NITRO_PORT: String(TEST_PORT),
       NUXT_AUTH_SECRET: 'test-secret-that-is-at-least-32-characters-long-for-jwt',
       NUXT_DATA_DIR: TEST_DATA_DIR,
       NODE_ENV: 'production',
@@ -47,7 +50,7 @@ export async function setup() {
   })
 
   // Wait for server to be ready
-  const baseUrl = `http://localhost:${TEST_PORT}`
+  const baseUrl = `http://127.0.0.1:${TEST_PORT}`
   let ready = false
   for (let i = 0; i < 30; i++) {
     try {

@@ -415,6 +415,7 @@ forgecrawl/
 │           ├── engine/         # scraper, fetcher, extractor, converter, cache
 │           ├── db/             # schema, migrations, init
 │           ├── auth/           # password (bcrypt), jwt (jose), api-key (SHA-256)
+│           ├── plugins/       # graceful-shutdown, security-headers
 │           └── utils/          # SSRF validation, rate limiter
 └── docs/                       # Design documents
 ```
@@ -483,6 +484,10 @@ curl http://localhost:5150/api/auth/api-keys \
 # Revoke an API key
 curl -X DELETE http://localhost:5150/api/auth/api-keys/{key_id} \
   -H "Authorization: Bearer $FC_KEY"
+
+# Revoke ALL API keys (preserves the key used for this request)
+curl -X DELETE http://localhost:5150/api/auth/api-keys/revoke-all \
+  -H "Authorization: Bearer $FC_KEY"
 ```
 
 ### Node.js / scripting example
@@ -516,6 +521,7 @@ Public configuration lives in [`forgecrawl.config.ts`](forgecrawl.config.ts) (si
 | `scrape.cacheTtl` | 3600 | Cache TTL in seconds (0 to disable) |
 | `auth.sessionMaxAge` | 1296000 | JWT/cookie lifetime (15 days in seconds) |
 | `rateLimit.loginMaxAttempts` | 5 | Failed logins before lockout |
+| `apiKeys.maxPerUser` | 20 | Max active API keys per user (0 = unlimited) |
 | `rateLimit.loginWindowMs` | 900000 | Lockout window (15 minutes) |
 
 Secrets go in `.env` (gitignored):
@@ -566,6 +572,7 @@ Scraping user-supplied URLs is a high-risk operation. ForgeCrawl blocks SSRF at 
 | **DNS resolution check** | After URL parsing, resolves the hostname and checks the resolved IP against all blocklists — prevents DNS rebinding attacks where a domain points to a private IP |
 | **DNS failure = block** | If DNS resolution fails, the request is blocked rather than allowed through — prevents SSRF bypass during DNS outages |
 | **Redirect re-validation** | HTTP redirects are handled manually; each redirect target is re-validated through the full SSRF pipeline before following — prevents open-redirect SSRF bypass |
+| **Redirect depth limit** | Maximum 10 redirects per request — prevents infinite redirect loops used for DoS attacks |
 
 ### Input Validation & Injection Prevention
 

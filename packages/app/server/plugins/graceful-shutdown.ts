@@ -15,8 +15,8 @@ export default defineNitroPlugin(() => {
         sqlite.close()
         console.log('[ForgeCrawl] Database connection closed')
       }
-    } catch {
-      // DB may already be closed
+    } catch (err) {
+      console.warn('[ForgeCrawl] Error during shutdown DB close:', err)
     }
 
     process.exit(0)

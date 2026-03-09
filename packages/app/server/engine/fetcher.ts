@@ -1,6 +1,12 @@
 import { validateUrlWithDns } from '../utils/url'
 
-export async function fetchPage(url: string): Promise<string> {
+const MAX_REDIRECTS = 10
+
+export async function fetchPage(url: string, redirectCount = 0): Promise<string> {
+  if (redirectCount > MAX_REDIRECTS) {
+    throw new Error('Too many redirects')
+  }
+
   const config = useRuntimeConfig()
 
   const response = await $fetch.raw(url, {
@@ -21,7 +27,7 @@ export async function fetchPage(url: string): Promise<string> {
     if (!location) throw new Error('Redirect with no Location header')
     const resolvedUrl = new URL(location, url).href
     await validateUrlWithDns(resolvedUrl)
-    return fetchPage(resolvedUrl)
+    return fetchPage(resolvedUrl, redirectCount + 1)
   }
 
   const contentType = response.headers.get('content-type') || ''
