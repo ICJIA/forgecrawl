@@ -196,14 +196,16 @@ See [`docs/deploy-digitalocean.md`](docs/deploy-digitalocean.md) for the complet
 
 ## First-Time Use
 
-After deploying (or starting the dev server), you need to create your admin account and get an API key.
+After deploying (or starting the dev server), you need to create your admin account and get an API key. Replace `YOUR_DOMAIN` below with your own server (e.g., `api.example.com` or `localhost:5150`).
+
+> **Note:** `api.forgecrawl.com` is the author's private instance — it is not a public service. ForgeCrawl is self-hosted: you deploy your own instance and control all access. The setup endpoint locks after the first admin account, and API keys require authentication, so no one else can use your install.
 
 ### 1. Create your admin account
 
-Open `https://api.forgecrawl.com` in a browser — you'll be redirected to the setup page. Or use curl:
+Open `https://YOUR_DOMAIN` in a browser — you'll be redirected to the setup page. Or use curl:
 
 ```bash
-curl -X POST https://api.forgecrawl.com/api/auth/setup \
+curl -X POST https://YOUR_DOMAIN/api/auth/setup \
   -H "Content-Type: application/json" \
   -d '{"email":"you@example.com","password":"your-strong-password","confirmPassword":"your-strong-password"}'
 ```
@@ -213,9 +215,9 @@ This endpoint works **exactly once** — it permanently locks itself after the f
 ### 2. Log in
 
 ```bash
-# Via browser: visit https://api.forgecrawl.com/login
+# Via browser: visit https://YOUR_DOMAIN/login
 # Via curl:
-curl -X POST https://api.forgecrawl.com/api/auth/login \
+curl -X POST https://YOUR_DOMAIN/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"you@example.com","password":"your-strong-password"}' \
   -c cookies.txt
@@ -228,7 +230,7 @@ In the web UI, go to the dashboard and click **API Keys** → **Create Key**. Gi
 Or via curl (using the session cookie from login):
 
 ```bash
-curl -X POST https://api.forgecrawl.com/api/auth/api-keys \
+curl -X POST https://YOUR_DOMAIN/api/auth/api-keys \
   -H "Content-Type: application/json" \
   -d '{"name":"my-script"}' \
   -b cookies.txt
@@ -241,7 +243,7 @@ Save the returned key — it cannot be retrieved again (only the prefix is store
 ```bash
 export FC_KEY="fc_your_api_key_here"
 
-curl -X POST https://api.forgecrawl.com/api/scrape \
+curl -X POST https://YOUR_DOMAIN/api/scrape \
   -H "Authorization: Bearer $FC_KEY" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://example.com"}'
