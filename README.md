@@ -149,6 +149,106 @@ pm2 save && pm2 startup
 
 See [`ecosystem.config.cjs`](ecosystem.config.cjs) for PM2 tuning options.
 
+## Deploy to Digital Ocean
+
+ForgeCrawl runs on a Digital Ocean Droplet with PM2 + Nginx. A full step-by-step guide is in [`docs/deploy-digitalocean.md`](docs/deploy-digitalocean.md), but here's the short version:
+
+### Prerequisites
+
+- Digital Ocean Droplet (2GB+ RAM recommended) with Node.js 22+, pnpm, PM2, and Nginx
+- Chromium installed for Puppeteer: `sudo apt-get install -y chromium-browser fonts-liberation fonts-noto-cjk`
+- DNS A record: `api.forgecrawl.com` → your Droplet IP
+
+### First deploy
+
+```bash
+ssh forge@YOUR_DROPLET_IP
+git clone https://github.com/cschweda/forgecrawl.git
+cd forgecrawl
+
+# Configure secrets
+cp .env.example .env
+node -e "console.log('NUXT_AUTH_SECRET=' + require('crypto').randomBytes(32).toString('hex'))" >> .env
+
+# Build and start
+pnpm install
+pnpm --filter @forgecrawl/app build
+pm2 start ecosystem.config.cjs
+pm2 save && pm2 startup
+
+# Set up Nginx + SSL
+sudo cp deploy/nginx-forgecrawl.conf /etc/nginx/sites-available/forgecrawl
+sudo ln -s /etc/nginx/sites-available/forgecrawl /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d api.forgecrawl.com
+```
+
+### Subsequent deploys
+
+```bash
+cd /home/forge/forgecrawl
+./rebuild.sh
+```
+
+The [`rebuild.sh`](rebuild.sh) script pulls, installs, builds, restarts PM2, and runs a health check. If you use Laravel Forge, paste [`deploy/forge-deploy.sh`](deploy/forge-deploy.sh) into your deploy script — it works with Forge's auto-deploy on push.
+
+See [`docs/deploy-digitalocean.md`](docs/deploy-digitalocean.md) for the complete guide including DNS setup (DNSimple), Nginx config, Laravel Forge integration, monitoring, backups, and troubleshooting.
+
+## First-Time Use
+
+After deploying (or starting the dev server), you need to create your admin account and get an API key.
+
+### 1. Create your admin account
+
+Open `https://api.forgecrawl.com` in a browser — you'll be redirected to the setup page. Or use curl:
+
+```bash
+curl -X POST https://api.forgecrawl.com/api/auth/setup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"your-strong-password","confirmPassword":"your-strong-password"}'
+```
+
+This endpoint works **exactly once** — it permanently locks itself after the first admin is created.
+
+### 2. Log in
+
+```bash
+# Via browser: visit https://api.forgecrawl.com/login
+# Via curl:
+curl -X POST https://api.forgecrawl.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"your-strong-password"}' \
+  -c cookies.txt
+```
+
+### 3. Create an API key
+
+In the web UI, go to the dashboard and click **API Keys** → **Create Key**. Give it a name (e.g., "my-script"). The key (`fc_...`) is shown **once** — copy it immediately.
+
+Or via curl (using the session cookie from login):
+
+```bash
+curl -X POST https://api.forgecrawl.com/api/auth/api-keys \
+  -H "Content-Type: application/json" \
+  -d '{"name":"my-script"}' \
+  -b cookies.txt
+```
+
+Save the returned key — it cannot be retrieved again (only the prefix is stored).
+
+### 4. Start scraping
+
+```bash
+export FC_KEY="fc_your_api_key_here"
+
+curl -X POST https://api.forgecrawl.com/api/scrape \
+  -H "Authorization: Bearer $FC_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com"}'
+```
+
+The response includes clean Markdown with YAML frontmatter, word count, metadata, and a job ID you can use to retrieve the result later.
+
 ## Why a VPS? (Not Netlify / Vercel)
 
 ForgeCrawl requires a traditional server (VPS, Droplet, bare metal) and **cannot run on serverless platforms** like Netlify or Vercel. This isn't a limitation we plan to work around — it's fundamental to the architecture.
@@ -181,35 +281,17 @@ ForgeCrawl uses a split-domain architecture:
 
 The marketing site is purely static HTML — no API, no server. The scraper API runs on your VPS behind Nginx (managed by Laravel Forge) with SSL via Let's Encrypt.
 
-### Laravel Forge Setup for `api.forgecrawl.com`
-
-1. In Laravel Forge, create a **new site** on your droplet with domain `api.forgecrawl.com`
-2. Edit the **Nginx configuration** to proxy to the ForgeCrawl app:
-
-```nginx
-location / {
-    proxy_pass http://127.0.0.1:5150;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_cache_bypass $http_upgrade;
-}
-```
-
-3. Click **SSL** → **Let's Encrypt** to provision a free certificate for `api.forgecrawl.com`
-4. Add a **DNS A record**: `api.forgecrawl.com` → your droplet's IP address
-5. Start the app on the droplet via Docker Compose or PM2 (see Quick Start above)
-
 ### DNS Records
 
 | Type | Name | Value |
 |------|------|-------|
-| ALIAS (or ANAME) | `forgecrawl.com` | `forgecrawl.netlify.app` |
-| A | `api.forgecrawl.com` | Your droplet IP (e.g., `143.198.x.x`) |
+| ALIAS | `forgecrawl.com` | `forgecrawl.netlify.app` (Netlify marketing site) |
+| CNAME | `www` | `forgecrawl.netlify.app` |
+| A | `api` | Your Droplet IP (e.g., `143.198.x.x`) |
+
+> **DNSimple users:** Use an ALIAS record (not A) for the apex domain pointing to Netlify — Netlify IPs can change.
+
+For the complete Nginx config, SSL setup, and Laravel Forge integration, see [`docs/deploy-digitalocean.md`](docs/deploy-digitalocean.md).
 
 ## Marketing Site
 
@@ -714,6 +796,7 @@ See [`docs/forgecrawl-05-phase5.md`](docs/forgecrawl-05-phase5.md) for the full 
 
 ## Documentation
 
+- [**Deploy to Digital Ocean**](docs/deploy-digitalocean.md) — complete deployment guide (DNS, Nginx, PM2, SSL, Laravel Forge, backups)
 - [`00` — Master Design](docs/forgecrawl-00-master-design.md)
 - [`01` — Phase 1: Foundation & Auth](docs/forgecrawl-01-phase1.md)
 - [`02` — Phase 2: Puppeteer & Storage](docs/forgecrawl-02-phase2.md)
