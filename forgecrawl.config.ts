@@ -221,6 +221,17 @@ export const config = {
   },
 
   /**
+   * API key limits — controls how many API keys a user can create.
+   */
+  apiKeys: {
+    /**
+     * Maximum number of active API keys per user.
+     * Set to 0 for unlimited. Revoked keys don't count.
+     */
+    maxPerUser: 20,
+  },
+
+  /**
    * Rate limiting — brute-force protection for the login endpoint.
    * These limits apply per email address, not per IP.
    */
