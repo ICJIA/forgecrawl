@@ -25,11 +25,15 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+  <div class="min-h-screen flex items-center justify-center bg-gray-950 px-4">
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold">ForgeCrawl</h1>
-        <p class="text-gray-500 dark:text-gray-400 mt-2">Sign in to your account</p>
+        <img
+          src="/forgecrawl-banner.png"
+          alt="ForgeCrawl"
+          class="mx-auto mb-6 rounded-lg max-w-[280px] opacity-90"
+        >
+        <p class="text-gray-400 mt-2">Sign in to your account</p>
       </div>
 
       <UAlert

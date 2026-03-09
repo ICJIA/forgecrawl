@@ -84,13 +84,16 @@ const columns = [
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-gray-950">
     <!-- Header -->
-    <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <h1 class="text-xl font-bold">ForgeCrawl</h1>
+    <header class="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-bold text-orange-500">ForgeCrawl</h1>
+          <span class="text-xs text-gray-600 font-mono hidden sm:inline">v0.1.0</span>
+        </div>
         <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-500">{{ user?.email }}</span>
+          <span class="text-sm text-gray-400">{{ user?.email }}</span>
           <UButton variant="ghost" size="sm" @click="onLogout">Logout</UButton>
         </div>
       </div>
@@ -128,9 +131,9 @@ const columns = [
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-lg font-semibold">{{ result.title }}</h2>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-400">
                 {{ result.wordCount }} words
-                <span v-if="result.cached" class="ml-2 text-blue-500">(cached)</span>
+                <span v-if="result.cached" class="ml-2 text-orange-400">(cached)</span>
               </p>
             </div>
             <UButton
@@ -143,7 +146,7 @@ const columns = [
           </div>
         </template>
         <div class="prose dark:prose-invert max-w-none">
-          <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96">{{ result.markdown }}</pre>
+          <pre class="whitespace-pre-wrap font-mono text-sm bg-gray-900 p-4 rounded-lg overflow-auto max-h-96">{{ result.markdown }}</pre>
         </div>
       </UCard>
 
@@ -158,7 +161,7 @@ const columns = [
         <template #title>Sitemap detected</template>
         <template #description>
           Found <strong>{{ sitemapInfo.count }}</strong> URLs in
-          <a :href="sitemapInfo.url" target="_blank" rel="noopener" class="underline">{{ sitemapInfo.url }}</a>.
+          <a :href="sitemapInfo.url" target="_blank" rel="noopener" class="underline text-orange-400 hover:text-orange-300">{{ sitemapInfo.url }}</a>.
           Multi-page crawling will be available in a future update.
         </template>
       </UAlert>
@@ -173,12 +176,12 @@ const columns = [
           No scrapes yet. Enter a URL above to get started.
         </div>
 
-        <div v-else class="divide-y divide-gray-200 dark:divide-gray-800">
+        <div v-else class="divide-y divide-gray-800">
           <NuxtLink
             v-for="job in scrapes.jobs"
             :key="job.id"
             :to="`/scrapes/${job.id}`"
-            class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors"
+            class="flex items-center justify-between py-3 px-2 hover:bg-gray-900 rounded-lg transition-colors"
           >
             <div class="min-w-0 flex-1">
               <p class="text-sm font-medium truncate">{{ job.url }}</p>

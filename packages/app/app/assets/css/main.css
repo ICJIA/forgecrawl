@@ -1,2 +1,12 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-orange-500) 30%, transparent);
+  color: var(--color-orange-100);
+}

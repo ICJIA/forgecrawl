@@ -45,15 +45,15 @@ function formatDate(dateStr: string | null) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-gray-950">
     <!-- Header -->
-    <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <header class="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <NuxtLink to="/">
             <UButton variant="ghost" size="sm">Back</UButton>
           </NuxtLink>
-          <h1 class="text-xl font-bold">Scrape Detail</h1>
+          <h1 class="text-xl font-bold text-orange-500">Scrape Detail</h1>
           <UButton
             variant="ghost"
             color="error"
@@ -65,7 +65,7 @@ function formatDate(dateStr: string | null) {
           </UButton>
         </div>
         <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-500">{{ user?.email }}</span>
+          <span class="text-sm text-gray-400">{{ user?.email }}</span>
           <UButton variant="ghost" size="sm" @click="onLogout">Logout</UButton>
         </div>
       </div>
@@ -97,7 +97,7 @@ function formatDate(dateStr: string | null) {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <span class="text-gray-500">URL:</span>
-              <a :href="data.job.url" target="_blank" rel="noopener" class="ml-2 text-blue-500 hover:underline break-all">
+              <a :href="data.job.url" target="_blank" rel="noopener" class="ml-2 text-orange-400 hover:text-orange-300 hover:underline break-all">
                 {{ data.job.url }}
               </a>
             </div>
@@ -165,12 +165,12 @@ function formatDate(dateStr: string | null) {
 
           <pre
             v-if="!showRaw"
-            class="whitespace-pre-wrap font-mono text-sm bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-[600px]"
+            class="whitespace-pre-wrap font-mono text-sm bg-gray-900 p-4 rounded-lg overflow-auto max-h-[600px]"
           >{{ data.result.markdown }}</pre>
 
           <pre
             v-else
-            class="whitespace-pre-wrap font-mono text-xs bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-[600px]"
+            class="whitespace-pre-wrap font-mono text-xs bg-gray-900 p-4 rounded-lg overflow-auto max-h-[600px]"
           >{{ data.result.rawHtml || 'Raw HTML not stored' }}</pre>
         </UCard>
       </template>
