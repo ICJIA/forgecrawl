@@ -17,8 +17,9 @@ export default defineEventHandler(async (event) => {
     const rawKey = authHeader.slice(7)
     const user = verifyApiKey(rawKey)
     if (user) {
-      event.context.user = user
+      event.context.user = { id: user.id, email: user.email, role: user.role }
       event.context.authMethod = 'api-key'
+      event.context.apiKeyId = user.apiKeyId
       return
     }
     throw createError({ statusCode: 401, message: 'Invalid API key' })

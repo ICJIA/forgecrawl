@@ -29,7 +29,7 @@ function hashKey(rawKey: string): string {
  * Look up a user by their API key. Returns null if the key is invalid or expired.
  * Updates lastUsedAt on successful lookup.
  */
-export function verifyApiKey(rawKey: string): { id: string; email: string; role: string } | null {
+export function verifyApiKey(rawKey: string): { id: string; email: string; role: string; apiKeyId: string } | null {
   if (!rawKey.startsWith(PREFIX)) return null
 
   const keyHash = hashKey(rawKey)
@@ -59,5 +59,5 @@ export function verifyApiKey(rawKey: string): { id: string; email: string; role:
 
   if (!user) return null
 
-  return { id: user.id, email: user.email, role: user.role }
+  return { id: user.id, email: user.email, role: user.role, apiKeyId: record.id }
 }
