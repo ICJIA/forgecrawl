@@ -1,4 +1,5 @@
 import { getDb } from '../../db'
+import { getSqlite } from '../../db'
 import { appConfig, users } from '../../db/schema'
 import { hashPassword } from '../../auth/password'
 import { createToken } from '../../auth/jwt'
@@ -7,7 +8,7 @@ import { eq } from 'drizzle-orm'
 export default defineEventHandler(async (event) => {
   const db = getDb()
 
-  // Atomic check: is setup already complete?
+  // Early check: is setup already complete?
   const existing = db.select().from(appConfig)
     .where(eq(appConfig.key, 'setup_complete'))
     .get()
@@ -35,23 +36,35 @@ export default defineEventHandler(async (event) => {
   const passwordHash = await hashPassword(body.password)
   const userId = crypto.randomUUID()
 
-  // Create admin user
-  db.insert(users).values({
-    id: userId,
-    email: body.email,
-    passwordHash,
-    displayName: body.displayName || body.email,
-    role: 'admin',
-  }).run()
+  // Transaction prevents race condition: re-check + insert atomically
+  const sqlite = getSqlite()!
+  const runSetup = sqlite.transaction(() => {
+    const alreadyDone = db.select().from(appConfig)
+      .where(eq(appConfig.key, 'setup_complete'))
+      .get()
 
-  // Mark setup complete (permanently)
-  db.insert(appConfig).values({
-    key: 'setup_complete',
-    value: {
-      completedAt: new Date().toISOString(),
-      adminId: userId,
-    },
-  }).run()
+    if (alreadyDone) {
+      throw createError({ statusCode: 403, message: 'Setup already completed' })
+    }
+
+    db.insert(users).values({
+      id: userId,
+      email: body.email,
+      passwordHash,
+      displayName: body.displayName || body.email,
+      role: 'admin',
+    }).run()
+
+    db.insert(appConfig).values({
+      key: 'setup_complete',
+      value: {
+        completedAt: new Date().toISOString(),
+        adminId: userId,
+      },
+    }).run()
+  })
+
+  runSetup()
 
   // Issue JWT session cookie
   const token = await createToken({

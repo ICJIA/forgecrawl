@@ -18,6 +18,11 @@ const BLOCKED_IP_RANGES = [
   /^0\./,                               // Current network
   /^100\.(6[4-9]|[7-9]\d|1[0-2]\d)\./, // Shared address space
   /^::1$/,                              // IPv6 loopback
+  /^::ffff:127\./i,                     // IPv4-mapped loopback
+  /^::ffff:10\./i,                      // IPv4-mapped private A
+  /^::ffff:172\.(1[6-9]|2\d|3[01])\./i, // IPv4-mapped private B
+  /^::ffff:192\.168\./i,               // IPv4-mapped private C
+  /^::ffff:169\.254\./i,               // IPv4-mapped link-local
   /^f[cd]/i,                            // IPv6 private
   /^fe80/i,                             // IPv6 link-local
 ]

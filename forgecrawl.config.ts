@@ -60,7 +60,7 @@ export const config = {
      * Bind address. '0.0.0.0' listens on all interfaces (required for Docker).
      * Set to '127.0.0.1' if you only want localhost access (e.g., behind Nginx).
      */
-    host: '0.0.0.0',
+    host: '127.0.0.1',
   },
 
   /**

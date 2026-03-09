@@ -6,6 +6,11 @@ import { join, resolve } from 'path'
 import { mkdirSync, existsSync } from 'fs'
 
 let _db: ReturnType<typeof drizzle<typeof schema>>
+let _sqlite: InstanceType<typeof Database> | null = null
+
+export function getSqlite() {
+  return _sqlite
+}
 
 export function getDb() {
   if (_db) return _db
@@ -17,16 +22,16 @@ export function getDb() {
   // Ensure data directory exists
   mkdirSync(dataDir, { recursive: true })
 
-  const sqlite = new Database(dbPath)
+  _sqlite = new Database(dbPath)
 
   // Performance and safety pragmas
-  sqlite.pragma('journal_mode = WAL')
-  sqlite.pragma('synchronous = NORMAL')
-  sqlite.pragma('foreign_keys = ON')
-  sqlite.pragma('busy_timeout = 5000')
-  sqlite.pragma('cache_size = -64000')
+  _sqlite.pragma('journal_mode = WAL')
+  _sqlite.pragma('synchronous = NORMAL')
+  _sqlite.pragma('foreign_keys = ON')
+  _sqlite.pragma('busy_timeout = 5000')
+  _sqlite.pragma('cache_size = -64000')
 
-  _db = drizzle(sqlite, { schema })
+  _db = drizzle(_sqlite, { schema })
 
   // Auto-migrate on startup
   // In dev mode, CWD is packages/app/. In production, migrations are bundled.

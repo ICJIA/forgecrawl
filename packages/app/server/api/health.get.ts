@@ -1,7 +1,7 @@
 import { isSetupComplete } from '../utils/setup'
 import { config } from '../../../../forgecrawl.config'
 
-export default defineEventHandler(() => {
+export default defineEventHandler((event) => {
   let setupComplete = false
   let dbStatus = 'ok'
 
@@ -9,10 +9,11 @@ export default defineEventHandler(() => {
     setupComplete = isSetupComplete()
   } catch {
     dbStatus = 'error'
+    setResponseStatus(event, 503)
   }
 
   return {
-    status: 'ok',
+    status: dbStatus === 'error' ? 'degraded' : 'ok',
     version: config.app.version,
     database: dbStatus,
     setup_complete: setupComplete,
