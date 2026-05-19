@@ -26,7 +26,7 @@
     "cheerio": "^1.0.0",
     "drizzle-orm": "^0.36.0",
     "jose": "^5.9.0",
-    "nuxt": "^4.3.1",
+    "nuxt": "^4.4.6",
     "tailwindcss": "^4.2.1",
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2",
