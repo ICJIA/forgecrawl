@@ -44,6 +44,6 @@
     "jsdom": "^28.1.0",
     "kill-port": "^2.0.1",
     "typescript": "^5.7.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   }
 }
